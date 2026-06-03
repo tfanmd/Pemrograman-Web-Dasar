@@ -32,7 +32,7 @@
                     <small class="text-secondary">TRANSAKSI</small>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link text-white"><i class="fas fa-handshake me-2"></i> Peminjaman</a>
+                    <a href="{{ route('peminjaman.index') }}" class="nav-link text-white"><i class="fas fa-handshake me-2"></i> Peminjaman</a>
                 </li>
             </ul>
         </nav>
