@@ -55,9 +55,26 @@
                 data: {
                     labels: ['Pending', 'Sedang Dipinjam', 'Selesai'],
                     datasets: [{
+                        label: 'Jumlah Transaksi',
                         data: [{{ $statusPending ?? 0 }}, {{ $sedangDipinjam }}, {{ $statusSelesai ?? 0 }}],
                         backgroundColor: ['#6c757d', '#ffc107', '#198754']
                     }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            tikes: {
+                                stepSize: 1
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
                 }
             });
         </script>
