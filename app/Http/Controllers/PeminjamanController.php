@@ -84,4 +84,12 @@ class PeminjamanController extends Controller
             return back()->withErrors(['error' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
         }
     }
+    public function show(string $id)
+    {
+        $peminjaman = Peminjaman::with(['user', 'detailPeminjaman.alat'])->findOrFail($id);
+        if (auth()->user()->role !== 'admin' && $peminjaman->user_id !== auth()->id()) {
+            abort(403); // Forbidden jika bukan admin dan bukan pemilik transaksi
+        }
+        return view('peminjaman.show', compact('peminjaman'));
+    }
 }
