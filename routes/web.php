@@ -6,6 +6,7 @@ use App\Http\Controllers\KategoriAlatController;
 use App\Http\Controllers\AlatRisetController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\UserController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,7 @@ Route::middleware('auth')->group(function () {
 // Group route KHUSUS ADMIN (Menggunakan custom middleware 'admin')
 Route::middleware(['auth', 'admin'])->group(function () {
 
+    Route::resource('user', UserController::class);
     Route::resource('kategori', KategoriAlatController::class);
     Route::resource('alat', AlatRisetController::class);
     Route::resource('peminjaman', PeminjamanController::class);
