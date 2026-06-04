@@ -51,7 +51,7 @@
         <script>
             var ctx = document.getElementById('transaksiChart').getContext('2d');
             var transaksiChart = new Chart(ctx, {
-                type: 'pie',
+                type: 'bar',
                 data: {
                     labels: ['Pending', 'Sedang Dipinjam', 'Selesai'],
                     datasets: [{
