@@ -23,7 +23,10 @@ class DashboardController extends Controller
         // Hitung total user biasa yang terdaftar
         $totalUser = User::where('role', 'user')->count();
 
-        return view('dashboard', compact('totalAlat', 'sedangDipinjam', 'totalUser'));
+        $statusPending = Peminjaman::where('status', 'pending')->count();
+        $statusSelesai = Peminjaman::where('status', 'selesai')->count();
+
+        return view('dashboard', compact('totalAlat', 'sedangDipinjam', 'totalUser', 'statusPending', 'statusSelesai'));
     }
 
     /**

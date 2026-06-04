@@ -38,20 +38,37 @@
 
             <form action="{{ route('laporan.index') }}" method="GET" class="mb-4">
                 <div class="row align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label">Tanggal Awal</label>
-                        <input type="date" name="tgl_awal" class="form-control" value="{{ $tglAwal ?? '' }}" required>
+                    <div class="col-md-2">
+                        <label class="form-label">Tgl Awal</label>
+                        <input type="date" name="tgl_awal" class="form-control" value="{{ request('tgl_awal') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Tgl Akhir</label>
+                        <input type="date" name="tgl_akhir" class="form-control" value="{{ request('tgl_akhir') }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Tanggal Akhir</label>
-                        <input type="date" name="tgl_akhir" class="form-control" value="{{ $tglAkhir ?? '' }}" required>
+                        <label class="form-label">Filter User</label>
+                        <select name="user_id" class="form-select">
+                            <option value="">Semua User</option>
+                            @foreach ($users as $usr)
+                                <option value="{{ $usr->id }}" {{ request('user_id') == $usr->id ? 'selected' : '' }}>
+                                    {{ $usr->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="col-md-3">
-                        <button type="submit" class="btn btn-primary">Filter Data</button>
-                        <a href="{{ route('laporan.index') }}" class="btn btn-secondary">Reset</a>
+                        <label class="form-label">Filter Alat</label>
+                        <select name="alat_id" class="form-select">
+                            <option value="">Semua Alat</option>
+                            @foreach ($alats as $alt)
+                                <option value="{{ $alt->id }}" {{ request('alat_id') == $alt->id ? 'selected' : '' }}>
+                                    {{ $alt->nama_alat }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="col-md-3 text-end">
-                        <button type="button" onclick="window.print()" class="btn btn-success">Cetak PDF</button>
+                    <div class="col-md-2 mt-3">
+                        <button type="submit" class="btn btn-primary w-100 mb-1">Filter</button>
+                        <button type="button" onclick="window.print()" class="btn btn-success w-100">Cetak</button>
                     </div>
                 </div>
             </form>

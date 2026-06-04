@@ -6,6 +6,9 @@
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">Daftar Transaksi Peminjaman</h6>
+        @if(auth()->user()->role === 'admin')
+                <a href="{{ route('laporan.index') }}" class="btn btn-info btn-sm text-white me-2"><i class="fas fa-print"></i> Laporan</a>
+            @endif
         <a href="{{ route('peminjaman.create') }}" class="btn btn-primary btn-sm">Buat Transaksi</a>
     </div>
     <div class="card-body">

@@ -9,24 +9,29 @@ class LaporanController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil input tanggal dari form (jika ada)
-        $tglAwal = $request->input('tgl_awal');
-        $tglAkhir = $request->input('tgl_akhir');
+        $query = Peminjaman::with(['user', 'detailPeminjaman.alat']);
 
-        // Jika user melakukan filter
-        if ($tglAwal && $tglAkhir) {
-            $peminjaman = Peminjaman::with('user')
-                ->whereBetween('tanggal_pinjam', [$tglAwal, $tglAkhir])
-                ->orderBy('tanggal_pinjam', 'asc')
-                ->get();
-        } else {
-            // Default: Tampilkan data bulan ini
-            $peminjaman = Peminjaman::with('user')
-                ->whereMonth('tanggal_pinjam', date('m'))
-                ->orderBy('tanggal_pinjam', 'asc')
-                ->get();
+        // Filter Rentang Tanggal
+        if ($request->tgl_awal && $request->tgl_akhir) {
+            $query->whereBetween('tanggal_pinjam', [$request->tgl_awal, $request->tgl_akhir]);
+        }
+        // Filter Per User
+        if ($request->user_id) {
+            $query->where('user_id', $request->user_id);
+        }
+        // Filter Per Alat (Menggunakan relasi detail_peminjaman)
+        if ($request->alat_id) {
+            $query->whereHas('detailPeminjaman', function ($q) use ($request) {
+                $q->where('alat_id', $request->alat_id);
+            });
         }
 
-        return view('laporan.index', compact('peminjaman', 'tglAwal', 'tglAkhir'));
+        $peminjaman = $query->orderBy('created_at', 'desc')->get();
+
+        // Data untuk Dropdown Filter
+        $users = \App\Models\User::where('role', 'user')->get();
+        $alats = \App\Models\AlatRiset::all();
+
+        return view('laporan.index', compact('peminjaman', 'users', 'alats'));
     }
 }
