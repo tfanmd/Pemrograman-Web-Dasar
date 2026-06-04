@@ -20,8 +20,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Nanti route untuk User pinjam alat ditaruh di sini
-    // Route::resource('peminjaman', PeminjamanController::class)->only(['index', 'create', 'store']);
+    Route::resource('peminjaman', PeminjamanController::class)->only(['index', 'create', 'store']);
 });
 
 // Group route bawaan Breeze untuk ganti password/profil

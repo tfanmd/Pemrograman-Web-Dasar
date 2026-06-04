@@ -16,7 +16,11 @@ class PeminjamanController extends Controller
      */
     public function index()
     {
-        $peminjaman = Peminjaman::with('user')->orderBy('created_at', 'desc')->get();
+        if (auth()->user()->role === 'admin') {
+            $peminjaman = Peminjaman::with('user')->orderBy('created_at', 'desc')->get();
+        } else {
+            $peminjaman = Peminjaman::where('user_id', auth()->id())->with('user')->orderBy('created_at', 'desc')->get();
+        }
         return view('peminjaman.index', compact('peminjaman'));
     }
 
@@ -26,7 +30,6 @@ class PeminjamanController extends Controller
     public function create()
     {
         $users = User::where('role', 'user')->get();
-        // Hanya tampilkan alat yang stoknya lebih dari 0
         $alat = AlatRiset::where('stok', '>', 0)->get();
 
         return view('peminjaman.create', compact('users', 'alat'));
