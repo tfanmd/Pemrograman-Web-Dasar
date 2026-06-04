@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\AlatRiset;
+use App\Models\Peminjaman;
 
 class DashboardController extends Controller
 {
@@ -11,7 +14,16 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        //
+        // Hitung total stok semua alat
+        $totalAlat = AlatRiset::sum('stok');
+
+        // Hitung berapa transaksi yang statusnya masih 'dipinjam'
+        $sedangDipinjam = Peminjaman::where('status', 'dipinjam')->count();
+
+        // Hitung total user biasa yang terdaftar
+        $totalUser = User::where('role', 'user')->count();
+
+        return view('dashboard', compact('totalAlat', 'sedangDipinjam', 'totalUser'));
     }
 
     /**

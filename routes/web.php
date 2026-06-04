@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriAlatController;
 use App\Http\Controllers\AlatRisetController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\LaporanController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -35,8 +36,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('kategori', KategoriAlatController::class);
     Route::resource('alat', AlatRisetController::class);
     Route::resource('peminjaman', PeminjamanController::class);
-    // Route khusus admin untuk validasi peminjaman dan lihat laporan
-    // Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 });
 
 require __DIR__ . '/auth.php';
