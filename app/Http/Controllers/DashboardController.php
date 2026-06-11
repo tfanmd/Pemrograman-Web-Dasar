@@ -14,19 +14,22 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Hitung total stok semua alat
-        $totalAlat = AlatRiset::sum('stok');
+        if (auth()->user()->role === 'admin') {
+            // Data untuk Admin
+            $totalAlat = AlatRiset::sum('stok');
+            $sedangDipinjam = Peminjaman::where('status', 'dipinjam')->count();
+            $totalUser = User::where('role', 'user')->count();
+            $statusPending = Peminjaman::where('status', 'pending')->count();
+            $statusSelesai = Peminjaman::where('status', 'selesai')->count();
 
-        // Hitung berapa transaksi yang statusnya masih 'dipinjam'
-        $sedangDipinjam = Peminjaman::where('status', 'dipinjam')->count();
+            return view('dashboard', compact('totalAlat', 'sedangDipinjam', 'totalUser', 'statusPending', 'statusSelesai'));
+        } else {
+            // Data untuk User Biasa
+            $pinjamanAktif = Peminjaman::where('user_id', auth()->id())->where('status', 'dipinjam')->count();
+            $pinjamanSelesai = Peminjaman::where('user_id', auth()->id())->where('status', 'selesai')->count();
 
-        // Hitung total user biasa yang terdaftar
-        $totalUser = User::where('role', 'user')->count();
-
-        $statusPending = Peminjaman::where('status', 'pending')->count();
-        $statusSelesai = Peminjaman::where('status', 'selesai')->count();
-
-        return view('dashboard', compact('totalAlat', 'sedangDipinjam', 'totalUser', 'statusPending', 'statusSelesai'));
+            return view('dashboard', compact('pinjamanAktif', 'pinjamanSelesai'));
+        }
     }
 
     /**
