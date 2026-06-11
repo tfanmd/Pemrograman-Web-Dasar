@@ -22,7 +22,11 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Peminjam (User)</th>
+
+                            @if (auth()->user()->role === 'admin')
+                                <th>Peminjam (User)</th>
+                            @endif
+
                             <th>Tanggal Pinjam</th>
                             <th>Tenggat</th>
                             <th>Status</th>
@@ -33,7 +37,11 @@
                         @foreach ($peminjaman as $item)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $item->user->name ?? 'User Tidak Diketahui' }}</td>
+
+                                @if (auth()->user()->role === 'admin')
+                                    <td>{{ $item->user->name ?? 'User Tidak Diketahui' }}</td>
+                                @endif
+
                                 <td>{{ \Carbon\Carbon::parse($item->tanggal_pinjam)->format('d-M-Y') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($item->tanggal_tenggat)->format('d-M-Y') }}</td>
                                 <td>
