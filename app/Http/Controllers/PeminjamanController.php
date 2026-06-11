@@ -100,4 +100,39 @@ class PeminjamanController extends Controller
         }
         return view('peminjaman.show', compact('peminjaman'));
     }
+
+    public function kembalikan($id)
+    {
+        // Pastikan hanya admin yang bisa melakukan ini
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $peminjaman = Peminjaman::with('detailPeminjaman')->findOrFail($id);
+
+        if ($peminjaman->status === 'selesai') {
+            return back()->with('error', 'Transaksi ini sudah diselesaikan sebelumnya.');
+        }
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            // 1. Ubah status peminjaman menjadi selesai
+            $peminjaman->update(['status' => 'selesai']);
+
+            // 2. Kembalikan stok untuk setiap alat yang dipinjam
+            foreach ($peminjaman->detailPeminjaman as $detail) {
+                $alat = \App\Models\AlatRiset::find($detail->alat_id);
+                if ($alat) {
+                    $alat->stok += $detail->jumlah_pinjam;
+                    $alat->save();
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+            return redirect()->back()->with('success', 'Peminjaman diselesaikan! Stok alat telah dikembalikan.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+        }
+    }
 }

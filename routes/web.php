@@ -37,9 +37,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('kategori', KategoriAlatController::class);
     Route::resource('alat', AlatRisetController::class);
 
-    // Route::resource('peminjaman', PeminjamanController::class); <-- INI DIHAPUS
-
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::put('/peminjaman/{id}/kembalikan', [PeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
 });
 
 require __DIR__ . '/auth.php';

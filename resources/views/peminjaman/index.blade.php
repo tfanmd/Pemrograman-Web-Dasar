@@ -54,10 +54,23 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="{{ route('peminjaman.show', $item->id) }}"
-                                        class="btn btn-info btn-sm text-white">
-                                        <i class="fas fa-eye"></i> Detail
-                                    </a>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a href="{{ route('peminjaman.show', $item->id) }}"
+                                            class="btn btn-info btn-sm text-white">
+                                            <i class="fas fa-eye"></i> Detail
+                                        </a>
+
+                                        @if (auth()->user()->role === 'admin' && $item->status == 'dipinjam')
+                                            <form action="{{ route('peminjaman.kembalikan', $item->id) }}" method="POST"
+                                                onsubmit="return confirm('Yakin ingin menyelesaikan transaksi ini? Stok alat akan dikembalikan.');">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-check"></i> Selesaikan
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
