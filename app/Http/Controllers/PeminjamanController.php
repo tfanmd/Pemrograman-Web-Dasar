@@ -29,6 +29,10 @@ class PeminjamanController extends Controller
      */
     public function create()
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Hanya Admin yang diizinkan membuat transaksi.');
+        }
+
         $users = User::where('role', 'user')->get();
         $alat = AlatRiset::where('stok', '>', 0)->get();
 
@@ -40,6 +44,10 @@ class PeminjamanController extends Controller
      */
     public function store(Request $request)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Hanya Admin yang diizinkan memproses transaksi.');
+        }
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'tanggal_pinjam' => 'required|date',

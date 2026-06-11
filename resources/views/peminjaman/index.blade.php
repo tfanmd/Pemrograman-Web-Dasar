@@ -9,8 +9,8 @@
             @if (auth()->user()->role === 'admin')
                 <a href="{{ route('laporan.index') }}" class="btn btn-info btn-sm text-white me-2"><i class="fas fa-print"></i>
                     Laporan</a>
+                <a href="{{ route('peminjaman.create') }}" class="btn btn-primary btn-sm">Buat Transaksi</a>
             @endif
-            <a href="{{ route('peminjaman.create') }}" class="btn btn-primary btn-sm">Buat Transaksi</a>
         </div>
         <div class="card-body">
             @if (session('success'))

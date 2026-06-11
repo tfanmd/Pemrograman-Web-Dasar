@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Route;
 
 // Halaman awal saat web dibuka
 Route::get('/', function () {
-    // Biar cepat, user yang buka halaman utama langsung dilempar ke halaman login
     return redirect('/login');
 });
 
@@ -20,7 +19,9 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('peminjaman', PeminjamanController::class)->only(['index', 'create', 'store']);
+    // Cukup 1 Route ini saja untuk Peminjaman, biarkan terbuka penuh. 
+    // (Proteksi lihat detail data orang lain sudah aman di dalam Controller)
+    Route::resource('peminjaman', PeminjamanController::class);
 });
 
 // Group route bawaan Breeze untuk ganti password/profil
@@ -32,11 +33,12 @@ Route::middleware('auth')->group(function () {
 
 // Group route KHUSUS ADMIN (Menggunakan custom middleware 'admin')
 Route::middleware(['auth', 'admin'])->group(function () {
-
     Route::resource('user', UserController::class);
     Route::resource('kategori', KategoriAlatController::class);
     Route::resource('alat', AlatRisetController::class);
-    Route::resource('peminjaman', PeminjamanController::class);
+
+    // Route::resource('peminjaman', PeminjamanController::class); <-- INI DIHAPUS
+
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 });
 

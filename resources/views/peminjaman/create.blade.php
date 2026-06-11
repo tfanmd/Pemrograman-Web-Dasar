@@ -23,19 +23,15 @@
                 @csrf
 
                 <div class="row">
-                    @if (auth()->user()->role === 'admin')
-                        <div class="col-md-12 mb-3">
-                            <label for="user_id" class="form-label">Pilih Peminjam (User)</label>
-                            <select class="form-select" id="user_id" name="user_id" required>
-                                <option value="" disabled selected>-- Pilih Mahasiswa/Peneliti --</option>
-                                @foreach ($users as $usr)
-                                    <option value="{{ $usr->id }}">{{ $usr->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    @else
-                        <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-                    @endif
+                    <div class="col-md-12 mb-3">
+                        <label for="user_id" class="form-label">Pilih Peminjam (User)</label>
+                        <select class="form-select" id="user_id" name="user_id" required>
+                            <option value="" disabled selected>-- Pilih Mahasiswa/Peneliti --</option>
+                            @foreach ($users as $usr)
+                                <option value="{{ $usr->id }}">{{ $usr->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
                 <div class="row">
