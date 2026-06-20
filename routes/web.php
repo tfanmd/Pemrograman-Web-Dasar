@@ -18,9 +18,6 @@ Route::get('/', function () {
 // Group route untuk SEMUA user yang sudah login (Admin & User biasa)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    // Cukup 1 Route ini saja untuk Peminjaman, biarkan terbuka penuh. 
-    // (Proteksi lihat detail data orang lain sudah aman di dalam Controller)
     Route::resource('peminjaman', PeminjamanController::class);
 });
 
@@ -31,14 +28,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Route Admin & Operator
+Route::middleware(['auth', 'role:admin,operator'])->group(function () {
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+
+    // Fitur pengembalian alat
+    Route::put('/peminjaman/{id}/kembalikan', [PeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
+});
 // Group route KHUSUS ADMIN (Menggunakan custom middleware 'admin')
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('user', UserController::class);
     Route::resource('kategori', KategoriAlatController::class);
     Route::resource('alat', AlatRisetController::class);
-
-    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-    Route::put('/peminjaman/{id}/kembalikan', [PeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
 });
 
 require __DIR__ . '/auth.php';
