@@ -59,12 +59,16 @@
                         Dashboard</a>
                 </li>
 
-                @if (auth()->user()->role === 'admin')
+                @if (in_array(auth()->user()->role, ['admin', 'operator']))
                     <li class="nav-item mt-3"><small class="text-secondary fw-bold px-3">MASTER DATA</small></li>
-                    <li class="nav-item"><a href="{{ route('kategori.index') }}" class="nav-link text-white"><i
-                                class="fas fa-tags me-2"></i> Kategori Alat</a></li>
-                    <li class="nav-item"><a href="{{ route('alat.index') }}" class="nav-link text-white"><i
-                                class="fas fa-microscope me-2"></i> Alat Riset</a></li>
+
+                    @if (auth()->user()->role === 'admin')
+                        <li class="nav-item"><a href="{{ route('kategori.index') }}" class="nav-link text-white"><i
+                                    class="fas fa-tags me-2"></i> Kategori Alat</a></li>
+                        <li class="nav-item"><a href="{{ route('alat.index') }}" class="nav-link text-white"><i
+                                    class="fas fa-microscope me-2"></i> Alat Riset</a></li>
+                    @endif
+
                     <li class="nav-item"><a href="{{ route('user.index') }}" class="nav-link text-white"><i
                                 class="fas fa-users me-2"></i> Data User</a></li>
                 @endif
@@ -72,6 +76,11 @@
                 <li class="nav-item mt-3"><small class="text-secondary fw-bold px-3">TRANSAKSI</small></li>
                 <li class="nav-item"><a href="{{ route('peminjaman.index') }}" class="nav-link text-white"><i
                             class="fas fa-handshake me-2"></i> Peminjaman</a></li>
+
+                @if (in_array(auth()->user()->role, ['admin', 'operator']))
+                    <li class="nav-item"><a href="{{ route('laporan.index') }}" class="nav-link text-white"><i
+                                class="fas fa-file-pdf me-2"></i> Laporan Peminjaman</a></li>
+                @endif
             </ul>
         </nav>
 

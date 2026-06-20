@@ -34,10 +34,10 @@ Route::middleware(['auth', 'role:admin,operator'])->group(function () {
 
     // Fitur pengembalian alat
     Route::put('/peminjaman/{id}/kembalikan', [PeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
+    Route::resource('user', UserController::class);
 });
 // Group route KHUSUS ADMIN (Menggunakan custom middleware 'admin')
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::resource('user', UserController::class);
     Route::resource('kategori', KategoriAlatController::class);
     Route::resource('alat', AlatRisetController::class);
 });
