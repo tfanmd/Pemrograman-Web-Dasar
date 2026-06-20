@@ -33,8 +33,8 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>
-                                    @if ($alt->gambar_alat)
-                                        <img src="{{ asset('storage/' . $alt->gambar_alat) }}" alt="Gambar"
+                                    @if ($item->gambar_alat)
+                                        <img src="{{ asset('storage/' . $item->gambar_alat) }}" item="Gambar"
                                             class="img-thumbnail" width="80" style="object-fit: cover; height: 80px;">
                                     @else
                                         <span class="text-muted">Tidak ada</span>
