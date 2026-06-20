@@ -17,18 +17,29 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
+                        <tr>
                             <th>No</th>
+                            <th>Gambar</th>
                             <th>Kategori</th>
                             <th>Nama Alat</th>
                             <th>Stok</th>
                             <th>Kondisi</th>
                             <th>Aksi</th>
                         </tr>
+                        </tr>
                     </thead>
                     <tbody>
                         @foreach ($alat as $item)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
+                                <td>
+                                    @if ($alt->gambar_alat)
+                                        <img src="{{ asset('storage/' . $alt->gambar_alat) }}" alt="Gambar"
+                                            class="img-thumbnail" width="80" style="object-fit: cover; height: 80px;">
+                                    @else
+                                        <span class="text-muted">Tidak ada</span>
+                                    @endif
+                                </td>
                                 <td>{{ $item->kategori->nama_kategori ?? 'Tidak ada kategori' }}</td>
                                 <td>{{ $item->nama_alat }}</td>
                                 <td>{{ $item->stok }}</td>

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\AlatRiset;
 
 use App\Models\KategoriAlat;
+use Illuminate\Support\Facades\Storage;
 
 class AlatRisetController extends Controller
 {
@@ -37,10 +38,17 @@ class AlatRisetController extends Controller
             'kategori_id' => 'required|exists:kategori_alat,id',
             'nama_alat' => 'required|string|max:255',
             'stok' => 'required|integer|min:0',
-            'kondisi' => 'required|string'
+            'kondisi' => 'required|string',
+            'gambar_alat' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        AlatRiset::create($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('gambar_alat')) {
+            $data['gambar_alat'] = $request->file('gambar_alat')->store('alat', 'public');
+        }
+
+        AlatRiset::create($data);
 
         return redirect()->route('alat.index')->with('success', 'Data alat berhasil ditambahkan!');
     }
@@ -72,11 +80,24 @@ class AlatRisetController extends Controller
             'kategori_id' => 'required|exists:kategori_alat,id',
             'nama_alat' => 'required|string|max:255',
             'stok' => 'required|integer|min:0',
-            'kondisi' => 'required|string'
+            'kondisi' => 'required|string',
+            'gambar_alat' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $alat = AlatRiset::findOrFail($id);
-        $alat->update($request->all());
+        $data = $request->all();
+
+        // Jika admin mengunggah gambar baru
+        if ($request->hasFile('gambar_alat')) {
+            // Hapus gambar lama dari storage jika ada
+            if ($alat->gambar_alat && Storage::disk('public')->exists($alat->gambar_alat)) {
+                Storage::disk('public')->delete($alat->gambar_alat);
+            }
+            // Simpan gambar baru
+            $data['gambar_alat'] = $request->file('gambar_alat')->store('alat', 'public');
+        }
+
+        $alat->update($data);
 
         return redirect()->route('alat.index')->with('success', 'Data alat berhasil diperbarui!');
     }
@@ -87,8 +108,13 @@ class AlatRisetController extends Controller
     public function destroy(string $id)
     {
         $alat = AlatRiset::findOrFail($id);
+
+        if ($alat->gambar_alat && Storage::disk('public')->exists($alat->gambar_alat)) {
+            Storage::disk('public')->delete($alat->gambar_alat);
+        }
+
         $alat->delete();
 
-        return redirect()->route('alat.index')->with('success', 'Data alat berhasil dihapus!');
+        return redirect()->route('alat.index')->with('success', 'Data Alat berhasil dihapus.');
     }
 }
