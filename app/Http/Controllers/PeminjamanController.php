@@ -31,13 +31,13 @@ class PeminjamanController extends Controller
     public function create()
     {
         if (!in_array(auth()->user()->role, ['admin', 'operator'])) {
-            abort(403, 'Hanya Admin dan Operator yang diizinkan memproses transaksi.');
+            abort(403, 'Akses ditolak.');
         }
 
         $users = User::where('role', 'user')->get();
-        $alat = AlatRiset::where('stok', '>', 0)->get();
+        $alats = AlatRiset::where('stok', '>', 0)->get(); // Hanya alat yang stoknya ready
 
-        return view('peminjaman.create', compact('users', 'alat'));
+        return view('peminjaman.create', compact('users', 'alats'));
     }
 
     /**
@@ -53,44 +53,53 @@ class PeminjamanController extends Controller
             'user_id' => 'required|exists:users,id',
             'tanggal_pinjam' => 'required|date',
             'tanggal_tenggat' => 'required|date|after_or_equal:tanggal_pinjam',
-            'alat_id' => 'required|exists:alat_riset,id',
-            'jumlah_pinjam' => 'required|integer|min:1'
+            'alat_id' => 'required|array|min:1',
+            'alat_id.*' => 'required|exists:alat_riset,id',
+            'jumlah_pinjam' => 'required|array|min:1',
+            'jumlah_pinjam.*' => 'required|integer|min:1'
         ]);
 
-        // Cek stok alat terlebih dahulu
-        $alat = AlatRiset::findOrFail($request->alat_id);
-        if ($request->jumlah_pinjam > $alat->stok) {
-            return back()->withErrors(['jumlah_pinjam' => 'Stok alat tidak mencukupi! Sisa stok: ' . $alat->stok]);
-        }
-
-        // Gunakan DB Transaction agar jika salah satu gagal, semuanya batal (Rollback)
         DB::beginTransaction();
         try {
-            // 1. Simpan ke tabel peminjaman (Tabel Transaksi 1)
+            // 1. Simpan data induk ke tabel peminjaman
             $peminjaman = Peminjaman::create([
                 'user_id' => $request->user_id,
                 'tanggal_pinjam' => $request->tanggal_pinjam,
                 'tanggal_tenggat' => $request->tanggal_tenggat,
-                'status' => 'dipinjam' // Status awal
+                'status' => 'dipinjam'
             ]);
 
-            // 2. Simpan ke tabel detail_peminjaman (Tabel Transaksi 2)
-            DetailPeminjaman::create([
-                'peminjaman_id' => $peminjaman->id,
-                'alat_id' => $request->alat_id,
-                'jumlah_pinjam' => $request->jumlah_pinjam
-            ]);
+            // 2. Lakukan perulangan array untuk memproses masing-masing alat riset
+            foreach ($request->alat_id as $index => $alatId) {
+                $jumlahPinjam = $request->jumlah_pinjam[$index];
+                $alat = AlatRiset::findOrFail($alatId);
 
-            // 3. Kurangi stok di tabel master alat_riset
-            $alat->stok -= $request->jumlah_pinjam;
-            $alat->save();
+                // Cek ketersediaan stok masing-masing komponen alat
+                if ($jumlahPinjam > $alat->stok) {
+                    DB::rollBack();
+                    return back()->withInput()->withErrors([
+                        'error' => "Stok alat '{$alat->nama_alat}' tidak mencukupi! Diminta: {$jumlahPinjam}, Sisa stok: {$alat->stok}"
+                    ]);
+                }
 
-            DB::commit(); // Simpan permanen ke database
+                // Simpan detail data ke tabel detail_peminjaman
+                DetailPeminjaman::create([
+                    'peminjaman_id' => $peminjaman->id,
+                    'alat_id' => $alatId,
+                    'jumlah_pinjam' => $jumlahPinjam
+                ]);
 
-            return redirect()->route('peminjaman.index')->with('success', 'Transaksi peminjaman berhasil dicatat!');
+                // Potong stok alat terkait
+                $alat->stok -= $jumlahPinjam;
+                $alat->save();
+            }
+
+            DB::commit(); // Transaksi sukses, kunci perubahan ke database
+
+            return redirect()->route('peminjaman.index')->with('success', 'Transaksi peminjaman beberapa alat berhasil dicatat!');
         } catch (\Exception $e) {
-            DB::rollBack(); // Batalkan semua proses jika ada error
-            return back()->withErrors(['error' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
+            DB::rollBack(); // Gagalkan semua pemotongan stok jika ada error sistem crash
+            return back()->withInput()->withErrors(['error' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
         }
     }
     public function show(string $id)
@@ -104,36 +113,36 @@ class PeminjamanController extends Controller
 
     public function kembalikan($id)
     {
-        // Pastikan hanya admin yang bisa melakukan ini
-        if (auth()->user()->role !== 'admin') {
+        if (!in_array(auth()->user()->role, ['admin', 'operator'])) {
             abort(403, 'Akses ditolak.');
         }
 
-        $peminjaman = Peminjaman::with('detailPeminjaman')->findOrFail($id);
-
-        if ($peminjaman->status === 'selesai') {
-            return back()->with('error', 'Transaksi ini sudah diselesaikan sebelumnya.');
-        }
-
-        \Illuminate\Support\Facades\DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            // 1. Ubah status peminjaman menjadi selesai
-            $peminjaman->update(['status' => 'selesai']);
+            $peminjaman = Peminjaman::with('detailPeminjaman.alat')->findOrFail($id);
 
-            // 2. Kembalikan stok untuk setiap alat yang dipinjam
+            if ($peminjaman->status === 'selesai') {
+                return back()->withErrors(['error' => 'Transaksi ini sudah selesai sebelumnya.']);
+            }
+
+            // Lakukan looping untuk mengembalikan stok seluruh barang yang dipinjam di transaksi ini
             foreach ($peminjaman->detailPeminjaman as $detail) {
-                $alat = \App\Models\AlatRiset::find($detail->alat_id);
+                $alat = $detail->alat;
                 if ($alat) {
-                    $alat->stok += $detail->jumlah_pinjam;
+                    $alat->stok += $detail->jumlah_pinjam; 
                     $alat->save();
                 }
             }
 
-            \Illuminate\Support\Facades\DB::commit();
-            return redirect()->back()->with('success', 'Peminjaman diselesaikan! Stok alat telah dikembalikan.');
+            $peminjaman->status = 'selesai';
+            $peminjaman->save();
+
+            DB::commit();
+
+            return redirect()->route('peminjaman.index')->with('success', 'Seluruh alat telah dikembalikan dan stok diperbarui!');
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\DB::rollBack();
-            return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal menyelesaikan transaksi: ' . $e->getMessage()]);
         }
     }
 }

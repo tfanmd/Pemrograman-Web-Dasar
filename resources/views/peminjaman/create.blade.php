@@ -5,7 +5,7 @@
 @section('content')
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Form Transaksi Peminjaman</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Form Catat Peminjaman Multi-Alat</h6>
         </div>
         <div class="card-body">
 
@@ -23,53 +23,107 @@
                 @csrf
 
                 <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <label for="user_id" class="form-label">Pilih Peminjam (User)</label>
-                        <select class="form-select" id="user_id" name="user_id" required>
-                            <option value="" disabled selected>-- Pilih Mahasiswa/Peneliti --</option>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Peminjam (User/Mahasiswa)</label>
+                        <select name="user_id" class="form-select" required>
+                            <option value="">-- Pilih Peminjam --</option>
                             @foreach ($users as $usr)
-                                <option value="{{ $usr->id }}">{{ $usr->name }}</option>
+                                <option value="{{ $usr->id }}">{{ $usr->name }} ({{ ucfirst($usr->role) }})</option>
                             @endforeach
                         </select>
                     </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="tanggal_pinjam" class="form-label">Tanggal Pinjam</label>
-                        <input type="date" class="form-control" id="tanggal_pinjam" name="tanggal_pinjam"
-                            value="{{ date('Y-m-d') }}" required>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Tanggal Pinjam</label>
+                        <input type="date" name="tanggal_pinjam" class="form-control" value="{{ date('Y-m-d') }}"
+                            required>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="tanggal_tenggat" class="form-label">Tanggal Tenggat (Kembali)</label>
-                        <input type="date" class="form-control" id="tanggal_tenggat" name="tanggal_tenggat" required>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Tanggal Tenggat Kembali</label>
+                        <input type="date" name="tanggal_tenggat" class="form-control"
+                            value="{{ date('Y-m-d', strtotime('+7 days')) }}" required>
                     </div>
                 </div>
 
                 <hr>
-                <h6 class="font-weight-bold mb-3">Pilih Alat Riset</h6>
 
-                <div class="row">
-                    <div class="col-md-8 mb-3">
-                        <label for="alat_id" class="form-label">Nama Alat</label>
-                        <select class="form-select" id="alat_id" name="alat_id" required>
-                            <option value="" disabled selected>-- Pilih Alat (Stok Tersedia) --</option>
-                            @foreach ($alat as $item)
-                                <option value="{{ $item->id }}">{{ $item->nama_alat }} (Sisa Stok: {{ $item->stok }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="jumlah_pinjam" class="form-label">Jumlah Pinjam</label>
-                        <input type="number" class="form-control" id="jumlah_pinjam" name="jumlah_pinjam" min="1"
-                            value="1" required>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0 text-secondary">Daftar Alat Yang Dipinjam</h5>
+                    <button type="button" id="btn-tambah-alat" class="btn btn-info btn-sm text-white">
+                        <i class="fas fa-plus"></i> Tambah Alat
+                    </button>
+                </div>
+
+                <div id="wrapper-alat">
+                    <div class="row row-alat align-items-end mb-3">
+                        <div class="col-md-7">
+                            <label class="form-label">Pilih Alat Riset</label>
+                            <select name="alat_id[]" class="form-select" required>
+                                <option value="">-- Pilih Alat --</option>
+                                @foreach ($alats as $alt)
+                                    <option value="{{ $alt->id }}">
+                                        {{ $alt->nama_alat }} (Stok: {{ $alt->stok }} | Kondisi: {{ $alt->kondisi }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Jumlah</label>
+                            <input type="number" name="jumlah_pinjam[]" class="form-control" min="1" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger w-100 btn-hapus-baris" disabled>Hapus</button>
+                        </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-success mt-3">Simpan Transaksi</button>
-                <a href="{{ route('peminjaman.index') }}" class="btn btn-secondary mt-3">Batal</a>
+                <hr class="mt-4">
+                <button type="submit" class="btn btn-primary px-4">Simpan Transaksi</button>
+                <a href="{{ route('peminjaman.index') }}" class="btn btn-secondary">Batal</a>
             </form>
         </div>
     </div>
+
+    <script>
+        // 1. Logika Tambah & Hapus Baris Dinamis
+        document.getElementById('btn-tambah-alat').addEventListener('click', function() {
+            let wrapper = document.getElementById('wrapper-alat');
+            let barisBaru = wrapper.querySelector('.row-alat').cloneNode(true);
+
+            barisBaru.querySelector('select').value = "";
+            barisBaru.querySelector('input').value = "";
+
+            let btnHapus = barisBaru.querySelector('.btn-hapus-baris');
+            btnHapus.removeAttribute('disabled');
+
+            btnHapus.addEventListener('click', function() {
+                barisBaru.remove();
+            });
+
+            wrapper.appendChild(barisBaru);
+        });
+
+        document.getElementById('wrapper-alat').addEventListener('change', function(e) {
+            if (e.target && e.target.matches('select[name="alat_id[]"]')) {
+                let currentSelect = e.target;
+                let allSelects = document.querySelectorAll('select[name="alat_id[]"]');
+                let nilaiDuplikat = false;
+
+                allSelects.forEach(function(select) {
+                    if (select !== currentSelect && select.value === currentSelect.value && currentSelect
+                        .value !== "") {
+                        nilaiDuplikat = true;
+                    }
+                });
+
+                if (nilaiDuplikat) {
+                    alert(
+                        '⚠️ Alat ini sudah dipilih di baris lain! Silakan pilih alat yang berbeda atau sesuaikan jumlahnya.'
+                        );
+                    currentSelect.value = ""; // 🔄 Otomatis reset dropdown balik ke "-- Pilih Alat --"
+                }
+            }
+        });
+    </script>
 @endsection
