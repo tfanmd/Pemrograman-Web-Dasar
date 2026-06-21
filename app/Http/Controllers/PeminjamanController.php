@@ -30,8 +30,8 @@ class PeminjamanController extends Controller
      */
     public function create()
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Hanya Admin yang diizinkan membuat transaksi.');
+        if (!in_array(auth()->user()->role, ['admin', 'operator'])) {
+            abort(403, 'Hanya Admin dan Operator yang diizinkan memproses transaksi.');
         }
 
         $users = User::where('role', 'user')->get();
