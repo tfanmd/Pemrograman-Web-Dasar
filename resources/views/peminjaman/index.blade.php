@@ -6,7 +6,7 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Daftar Transaksi Peminjaman</h6>
-            @if (auth()->user()->role === 'admin')
+            @if (in_array(auth()->user()->role, ['admin', 'operator']))
                 <a href="{{ route('peminjaman.create') }}" class="btn btn-primary btn-sm">Buat Transaksi</a>
             @endif
         </div>
@@ -20,11 +20,9 @@
                     <thead>
                         <tr>
                             <th>No</th>
-
-                            @if (auth()->user()->role === 'admin')
+                            @if (in_array(auth()->user()->role, ['admin', 'operator']))
                                 <th>Peminjam (User)</th>
                             @endif
-
                             <th>Tanggal Pinjam</th>
                             <th>Tenggat</th>
                             <th>Status</th>
@@ -35,11 +33,9 @@
                         @foreach ($peminjaman as $item)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-
-                                @if (auth()->user()->role === 'admin')
+                                @if (in_array(auth()->user()->role, ['admin', 'operator']))
                                     <td>{{ $item->user->name ?? 'User Tidak Diketahui' }}</td>
                                 @endif
-
                                 <td>{{ \Carbon\Carbon::parse($item->tanggal_pinjam)->format('d-M-Y') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($item->tanggal_tenggat)->format('d-M-Y') }}</td>
                                 <td>

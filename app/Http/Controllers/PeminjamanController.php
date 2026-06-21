@@ -16,11 +16,12 @@ class PeminjamanController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->role === 'admin') {
+        if (in_array(auth()->user()->role, ['admin', 'operator'])) {
             $peminjaman = Peminjaman::with('user')->orderBy('created_at', 'desc')->get();
         } else {
             $peminjaman = Peminjaman::where('user_id', auth()->id())->with('user')->orderBy('created_at', 'desc')->get();
         }
+
         return view('peminjaman.index', compact('peminjaman'));
     }
 
