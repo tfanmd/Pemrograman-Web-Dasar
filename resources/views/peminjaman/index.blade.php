@@ -58,7 +58,7 @@
                                             <i class="fas fa-eye"></i> Detail
                                         </a>
 
-                                        @if (auth()->user()->role === 'admin' && $item->status == 'dipinjam')
+                                        @if (in_array(auth()->user()->role, ['admin', 'operator']) && $item->status == 'dipinjam')
                                             <form action="{{ route('peminjaman.kembalikan', $item->id) }}" method="POST"
                                                 onsubmit="return confirm('Yakin ingin menyelesaikan transaksi ini? Stok alat akan dikembalikan.');">
                                                 @csrf

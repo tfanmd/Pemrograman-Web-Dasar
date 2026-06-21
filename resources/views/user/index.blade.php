@@ -42,9 +42,9 @@
                                 </td>
                                 <td>
                                     @if (auth()->user()->role === 'admin')
-                                        <a href="{{ route('user.edit', $usr->id) }}"
+                                        <a href="{{ route('user.edit', $item->id) }}"
                                             class="btn btn-warning btn-sm text-dark"><i class="fas fa-edit"></i> Edit</a>
-                                        <form action="{{ route('user.destroy', $usr->id) }}" method="POST" class="d-inline"
+                                        <form action="{{ route('user.destroy', $item->id) }}" method="POST" class="d-inline"
                                             onsubmit="return confirm('Yakin ingin menghapus user ini?');">
                                             @csrf
                                             @method('DELETE')
