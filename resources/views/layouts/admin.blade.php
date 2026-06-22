@@ -91,12 +91,32 @@
                 </button>
 
                 <div class="ms-auto d-flex align-items-center">
-                    <span class="me-3 fw-bold">Halo, {{ auth()->user()->name }}</span>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="btn btn-danger btn-sm" type="submit"><i class="fas fa-sign-out-alt"></i>
-                            Logout</button>
-                    </form>
+                    <div class="dropdown">
+                        <a class="text-decoration-none dropdown-toggle fw-bold text-dark d-flex align-items-center"
+                            href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <span class="me-2">Halo, {{ auth()->user()->name }}</span>
+                            <i class="fas fa-user-circle fa-xl text-secondary"></i> </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2" aria-labelledby="dropdownMenuLink">
+                            <li>
+                                <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                    <i class="fas fa-user-cog me-2 text-muted"></i> Profile & Password
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}" class="m-0">
+                                    @csrf
+                                    <button class="dropdown-item text-danger" type="submit">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </nav>
 
