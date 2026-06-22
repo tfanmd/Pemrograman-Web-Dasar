@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\KategoriAlat;
+use App\Models\AlatRiset;
+use App\Models\DetailPeminjaman;    
 
 class KategoriAlatController extends Controller
 {
@@ -81,8 +83,14 @@ class KategoriAlatController extends Controller
     public function destroy(string $id)
     {
         $kategori = KategoriAlat::findOrFail($id);
-        $kategori->delete();
 
-        return redirect()->route('kategori.index')->with('success', 'Kategori berhasil dihapus!');
+        $adaAlat = AlatRiset::where('kategori_id', $id)->exists();
+
+        if ($adaAlat) {
+            return redirect()->route('kategori.index')->with('error', "Gagal menghapus! Kategori '{$kategori->nama_kategori}' masih digunakan oleh beberapa data alat riset.");
+        }
+
+        $kategori->delete();
+        return redirect()->route('kategori.index')->with('success', 'Data Kategori berhasil dihapus.');
     }
 }

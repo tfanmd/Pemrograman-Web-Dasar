@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Peminjaman;
+use App\Http\Controllers\PeminjamanController;
 
 class UserController extends Controller
 {
@@ -31,7 +33,7 @@ class UserController extends Controller
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), 
+            'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
 
@@ -70,16 +72,22 @@ class UserController extends Controller
         return redirect()->route('user.index')->with('success', 'Data User berhasil diperbarui!');
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
+        if (auth()->id() == $id) {
+            return redirect()->route('user.index')->with('error', "⚠️ Gagal menghapus! Anda tidak bisa menghapus akun Anda sendiri yang sedang aktif.");
+        }
+
         $user = User::findOrFail($id);
 
-        // Mencegah admin menghapus akunnya sendiri yang sedang dipakai login
-        if (auth()->id() == $user->id) {
-            return redirect()->route('user.index')->with('error', 'Anda tidak bisa menghapus akun Anda sendiri!');
+        // Cek apakah user ini memiliki riwayat peminjaman alat
+        $adaTransaksi = Peminjaman::where('user_id', $id)->exists();
+
+        if ($adaTransaksi) {
+            return redirect()->route('user.index')->with('error', "Gagal menghapus! Akun '{$user->name}' tidak bisa dihapus karena memiliki riwayat transaksi peminjaman di laboratorium.");
         }
 
         $user->delete();
-        return redirect()->route('user.index')->with('success', 'Data User berhasil dihapus!');
+        return redirect()->route('user.index')->with('success', 'Data User berhasil dihapus.');
     }
 }

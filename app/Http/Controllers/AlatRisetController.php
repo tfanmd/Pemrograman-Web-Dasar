@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\AlatRiset;
-
+use App\Models\DetailPeminjaman;
 use App\Models\KategoriAlat;
 use Illuminate\Support\Facades\Storage;
 
@@ -108,6 +108,13 @@ class AlatRisetController extends Controller
     public function destroy(string $id)
     {
         $alat = AlatRiset::findOrFail($id);
+
+        $adaTransaksi = DetailPeminjaman::where('alat_id', $id)->exists();
+
+        if ($adaTransaksi) {
+            return redirect()->route('alat.index')->with('error', "Gagal menghapus! Alat '{$alat->nama_alat}' tidak bisa dihapus karena memiliki riwayat transaksi peminjaman.");
+        }
+
 
         if ($alat->gambar_alat && Storage::disk('public')->exists($alat->gambar_alat)) {
             Storage::disk('public')->delete($alat->gambar_alat);

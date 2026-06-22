@@ -5,12 +5,9 @@
 @section('content')
 <style>
     @media print {
-        /* 1. Sembunyikan elemen dekoratif web yang mengganggu */
         nav, .navbar, .sidebar, .btn, footer, hr {
             display: none !important;
         }
-
-        /* 2. Pastikan area konten memenuhi halaman cetak */
         .container-fluid, .card, .card-body {
             padding: 0 !important;
             margin: 0 !important;
@@ -25,7 +22,6 @@
             font-size: 12pt;
         }
 
-        /* 3. Munculkan Header Surat Lab Formal (Hanya muncul saat di-print) */
         .print-header {
             display: block !important;
             text-center: center;
@@ -40,7 +36,6 @@
         }
     }
 
-    /* Secara default di halaman web, header/footer cetak ini disembunyikan */
     .print-header, .print-footer {
         display: none;
     }
