@@ -86,7 +86,6 @@
     </div>
 
     <script>
-        // 1. Logika Tambah & Hapus Baris Dinamis
         document.getElementById('btn-tambah-alat').addEventListener('click', function() {
             let wrapper = document.getElementById('wrapper-alat');
             let barisBaru = wrapper.querySelector('.row-alat').cloneNode(true);
@@ -121,7 +120,7 @@
                     alert(
                         '⚠️ Alat ini sudah dipilih di baris lain! Silakan pilih alat yang berbeda atau sesuaikan jumlahnya.'
                         );
-                    currentSelect.value = ""; // 🔄 Otomatis reset dropdown balik ke "-- Pilih Alat --"
+                    currentSelect.value = ""; 
                 }
             }
         });

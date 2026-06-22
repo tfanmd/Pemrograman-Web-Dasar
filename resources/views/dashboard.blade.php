@@ -50,7 +50,7 @@
                 <div class="col-lg-5 mb-4">
                     <div class="card shadow border-0 h-100">
                         <div class="card-header py-3 bg-info text-white">
-                            <h6 class="m-0 font-weight-bold">Top 5 Alat Terpopuler Minggu Ini</h6>
+                            <h6 class="m-0 font-weight-bold">Alat Terbanyak Dipinjam Minggu ini</h6>
                         </div>
                         <div class="card-body p-0">
                             @if(count($topAlat) > 0)

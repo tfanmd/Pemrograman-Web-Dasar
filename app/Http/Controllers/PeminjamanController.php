@@ -105,8 +105,8 @@ class PeminjamanController extends Controller
     public function show(string $id)
     {
         $peminjaman = Peminjaman::with(['user', 'detailPeminjaman.alat'])->findOrFail($id);
-        if (auth()->user()->role !== 'admin' && $peminjaman->user_id !== auth()->id()) {
-            abort(403); // Forbidden jika bukan admin dan bukan pemilik transaksi
+        if (!in_array(auth()->user()->role, ['admin', 'operator'])) {
+            abort(403, 'Hanya Admin dan Operator yang diizinkan memproses transaksi.');
         }
         return view('peminjaman.show', compact('peminjaman'));
     }
@@ -129,7 +129,7 @@ class PeminjamanController extends Controller
             foreach ($peminjaman->detailPeminjaman as $detail) {
                 $alat = $detail->alat;
                 if ($alat) {
-                    $alat->stok += $detail->jumlah_pinjam; 
+                    $alat->stok += $detail->jumlah_pinjam;
                     $alat->save();
                 }
             }

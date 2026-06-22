@@ -36,6 +36,8 @@
                                 <td>
                                     @if ($item->role == 'admin')
                                         <span class="badge bg-danger">Admin</span>
+                                    @elseif ($item->role == 'operator')
+                                        <span class="badge bg-success">Operator</span>
                                     @else
                                         <span class="badge bg-primary">User</span>
                                     @endif
@@ -44,15 +46,15 @@
                                     @if (auth()->user()->role === 'admin')
                                         <a href="{{ route('user.edit', $item->id) }}"
                                             class="btn btn-warning btn-sm text-dark"><i class="fas fa-edit"></i> Edit</a>
-                                        <form action="{{ route('user.destroy', $item->id) }}" method="POST" class="d-inline"
-                                            onsubmit="return confirm('Yakin ingin menghapus user ini?');">
+                                        <form action="{{ route('user.destroy', $item->id) }}" method="POST"
+                                            class="d-inline" onsubmit="return confirm('Yakin ingin menghapus user ini?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm"><i
                                                     class="fas fa-trash"></i> Hapus</button>
                                         </form>
                                     @else
-                                        <span class="badge bg-secondary">Hanya View</span>
+                                        <span class="badge bg-secondary">View Only</span>
                                     @endif
                                 </td>
                             </tr>
