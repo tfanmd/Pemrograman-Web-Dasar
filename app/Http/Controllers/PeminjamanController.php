@@ -121,6 +121,8 @@ class PeminjamanController extends Controller
         try {
             $peminjaman = Peminjaman::with('detailPeminjaman.alat')->findOrFail($id);
 
+
+
             if ($peminjaman->status === 'selesai') {
                 return back()->withErrors(['error' => 'Transaksi ini sudah selesai sebelumnya.']);
             }
@@ -135,6 +137,7 @@ class PeminjamanController extends Controller
             }
 
             $peminjaman->status = 'selesai';
+            $peminjaman->tanggal_kembali = date('Y-m-d');
             $peminjaman->save();
 
             DB::commit();
